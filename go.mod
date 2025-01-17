@@ -1,8 +1,12 @@
-module proje1
+module TodoApp
 
 go 1.23.2
 
-require github.com/gofiber/fiber/v2 v2.52.6
+require (
+	github.com/gofiber/fiber/v2 v2.52.6
+	gorm.io/driver/postgres v1.5.11
+	gorm.io/gorm v1.25.12
+)
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
@@ -25,6 +29,4 @@ require (
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	gorm.io/driver/postgres v1.5.11 // indirect
-	gorm.io/gorm v1.25.12 // indirect
 )

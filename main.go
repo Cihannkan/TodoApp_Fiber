@@ -1,18 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"TodoApp/controller"
+	"TodoApp/model"
+	"TodoApp/repository"
+	"TodoApp/service"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-type Todo struct {
-	ID   uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	Task string `json:"task"`
-	Done bool   `json:"done" gorm:"default:false"`
-}
 
 func main() {
 	app := fiber.New()
@@ -20,33 +17,13 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&Todo{})
+	db.AutoMigrate(&model.Todo{})
 
-	app.Post("/user", func(c *fiber.Ctx) error {
-		var todo Todo
-		if err := c.BodyParser(&todo); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid input",
-			})
-		}
-		if todo.Task == "" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Task is required",
-			})
-		}
-		fmt.Println(todo)
-		if result := db.Create(&todo); result.Error != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": result.Error.Error(),
-			})
-		}
-		return c.JSON(fiber.Map{
-			"id":      todo.ID,
-			"task":    todo.Task,
-			"done":    todo.Done,
-			"message": "Todo created successfully",
-		})
-	})
+	todoRepo := &repository.TodoRepository{DB: db}
+	todoService := &service.TodoService{Repo: todoRepo}
+	todoController := &controller.TodoController{Service: todoService}
+
+	app.Post("/user", todoController.CreateTodo)
 
 	app.Listen(":3000")
 }
